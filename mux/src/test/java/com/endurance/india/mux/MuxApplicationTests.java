@@ -1,4 +1,4 @@
-package com.endurance.india.mux.mux;
+package com.endurance.india.mux;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
