@@ -1,0 +1,225 @@
+<!--  karthik -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script
+			  src="https://code.jquery.com/jquery-3.2.1.min.js"
+			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			  crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    .nopad
+    {
+      padding:3px !important;
+    }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+      function init()
+      {
+        form_lambda_map = {};
+        initialHTML = `<html>
+          <head>
+              <script
+			  src="https://code.jquery.com/jquery-3.2.1.min.js"
+			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			  crossorigin="anonymous"><\/script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"><\/script>
+        <script type="text/javascript" src="http://yourjavascript.com/14382472963/muxnetworkhelper.js"><\/script>
+          </head>
+          <body>
+                <div id="output">
+      			</div>
+          </body>
+        </html>`;
+        editor2 = ace.edit("lambdaEditor");
+        editor2.setTheme("ace/theme/iplastic");
+        editor2.getSession().setMode("ace/mode/python");
+        editor2.setOptions({fontSize:"15pt"});
+
+        editor = ace.edit("editor");
+        editor.setTheme("ace/theme/iplastic");
+        editor.getSession().setMode("ace/mode/html");
+        editor.getSession().on("change",function(){update()});
+        editor.setOptions({fontSize:"15pt"});
+        editor.getSession().setValue(initialHTML);
+        update();
+        formHTML = `<div class="container">
+              <br/>
+              <div class="row">
+                <input type="text" placeholder="Enter Name" class="lambda-form-name form-control col-md-5"/>
+                <p class="col-md-2"></p>
+                <input type="text" placeholder="Enter Default Value" class="lambda-form-value form-control col-md-5"/>
+              </div>
+        </div>
+        <br/>
+        <div class="container">
+          <div class="row">
+            <select class="lambda-form-drop form-control col-md-10">
+                <option value="text">Text</option>
+                <option value="password">Password</option>
+                <option value="checkbox">Checkbox</option>
+            </select>
+            <p class="col-md-1"></p>
+            <button type="button" onclick="$(this).parent().parent().parent().remove();" class="close" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        </div>
+
+        `;
+      }
+      function update()
+      {
+        document.getElementById("preview").contentWindow.document.documentElement.innerHTML=editor.getValue();
+      }
+      function addElement(defaultName)
+      {
+          console.log(defaultName);
+          console.log(typeof(defaultName));
+          myDiv = document.createElement("div");
+          myDiv.innerHTML = formHTML;
+          if(typeof(defaultName) != "undefined")
+          {
+              myDiv.getElementsByClassName("lambda-form-name")[0].value = defaultName;
+          }
+          document.getElementById("contentDiv").appendChild(myDiv);
+      }
+
+      function submitForm()
+      {
+        console.log("Called");
+        var lambdaFn = editor2.getValue();
+        var divs = document.getElementById("contentDiv").childNodes;
+        var f = document.createElement("form");
+        f.id = "lambda_form_id_"+1;
+        console.log(divs.length);
+        //console.log(divs[1].innerHTML);
+        var requestParams = [];
+        for(var i=0;i!=divs.length;i++)
+        {
+            console.log(i);
+            console.log(divs[i].innerHTML);
+            var inp = document.createElement("input");
+            console.log(divs[i].getElementsByClassName("lambda-form-value")[0].value);
+            inp.placeholder = divs[i].getElementsByClassName("lambda-form-name")[0].value;
+            inp.type = divs[i].getElementsByClassName("lambda-form-drop")[0].value;
+            inp.name = divs[i].getElementsByClassName("lambda-form-name")[0].value;
+            if(divs[i].getElementsByClassName("lambda-form-value")[0].value)
+            {
+              inp.value = divs[i].getElementsByClassName("lambda-form-name")[0].value;
+            }
+            inp.id = "id_"+i;
+            console.log(f.innerHTML);
+            f.innerHTML += "&nbsp;"+inp.outerHTML;
+        }
+        var functionName = "makeAjaxforAndPopulateTable";
+        f.innerHTML += `&nbsp;<button class='btn btn-secondary' onClick="${functionName}('${f.id}');return false;">Submit</button>`;
+        var currrentHTML = editor.getSession().getValue();
+        var position = currrentHTML.search("</body>");
+        var output = [currrentHTML.slice(0, position), f.outerHTML, currrentHTML.slice(position)].join('');
+        editor.getSession().setValue(output+"\n");
+        form_lambda_map[f.id] = editor2.getSession().getValue();
+        document.getElementById("contentDiv").innerHTML = "";
+        editor2.getSession().setValue("");
+      }
+      function makeWebsite()
+      {
+        $.ajax({
+                      type: "POST",
+                      url: "http://127.0.0.1:8080/create",
+                      crossDomain : true,
+                      dataType: 'json',
+                      contentType: "application/json; charset=utf-8",
+                      data: JSON.stringify({
+                      "html":editor.getSession().getValue(),
+                      "lambda":form_lambda_map
+                      }),
+                      statusCode : {
+                        200 :   function(response){
+                              alert(response.responseText);
+                          }
+                      }
+              });
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <div class="container-fluid nopad">
+      <div class="row nopad">
+        <div class="col-md-6 nopad">
+          <div style="height:50vh;border-bottom:1px solid grey;border-right:1px solid grey">
+                <iframe id="preview"  frameBorder="0" style="pointer-events:None;height:100%;width:100%"></iframe>
+          </div>
+          <div style="height:50vh;border-right:1px solid grey">
+                <div id="editor" style="width:100%;height:100%"></div>
+          </div>
+        </div>
+        <div class="col-md-3 nopad" style="height:100vh;text-align:center;border-right:1px solid grey;background-color:#f5f5f5">
+            <div class="nopad" style="text-align:center;background-color:#d9534f">
+              <p style="font-size:40px;color:white">Forms</p>
+            </div>
+            <div>
+                <h4>Enter the lambda function to execute onSubmit</h4>
+                <div id="lambdaEditor" style="width:100%;height:300px"></div>
+            </div>
+            <div id="contentDiv"></div>
+            <br/>
+            <br/>
+            <div class="container">
+              <button type="button" class="btn btn-secondary" onclick="addElement()">Add an input</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <button type="button" class="btn btn-secondary" onclick="submitForm()">Add to template</button>
+            </div>
+            <br/>
+            <br/>
+            <div>
+                <button type="button" class="btn btn-secondary" onclick="makeWebsite()">Finish!</button>
+            </div>
+        </div>
+        <div class="col-md-3 nopad" style="height:100vh;border-right:1px solid grey;background-color:#f5f5f5">
+          <div class="nopad" style="text-align:center;background-color:#428bca">
+            <p style="font-size:40px;color:white">&lambda; Templates</p>
+          </div>
+          <div id="cards" >
+            <br/>
+            <br/>
+            <div class="card bg-inverse text-white" style="width:80%;margin:auto">
+                <div class="card-block">
+                  <h4 class="card-title">Hotels API</h4>
+                  <h5 class="card-subtitle mb-4 text-danger">&lambda; for finding hotels near a specified location using Google API</h5>
+                  <p class="card-text"></p>
+                  <a href="#" onclick="editor2.getSession().setValue(`import urllib2\nimport json\nPLACES_API_KEY = 'AIzaSyA0ByzRZqAYShid0fHECydt-vOEyO2YKTg'\nurl = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+'+location+'&key='+PLACES_API_KEY\nf = urllib2.urlopen(url)\njson_object = json.loads(f.read())\noutput_object = []\nfor obj in json_object['results']:\n  temp = {}\n  temp['name'] = obj['name']\n  temp['address'] = obj['formatted_address']\n  output_object.append(temp)\noutput = json.dumps(output_object)`);document.getElementById('contentDiv').innerHTML = '';addElement('location');" class="card-link">Use this!</a>
+                </div>
+            </div>
+            <br/>
+            <br/>
+            <div class="card bg-inverse text-white" style="width:80%;margin:auto">
+                <div class="card-block">
+                  <h4 class="card-title">Multiply Two Numbers</h4>
+                  <h5 class="card-subtitle mb-4 text-danger">Simple &lambda; for multiplying two numbers named a and b</h5>
+                  <p class="card-text"></p>
+                  <a href="#" onclick="editor2.getSession().setValue('import json\nc = float(a) * float(b)\noutput = json.dumps([{\'output\':c}])');document.getElementById('contentDiv').innerHTML = '';addElement('a');addElement('b');" class="card-link">Use this!</a>
+                </div>
+            </div>
+            <br/>
+            <br/>
+            <div class="card bg-inverse text-white" style="width:80%;margin:auto">
+                <div class="card-block">
+                  <h4 class="card-title">Square a Number</h4>
+                  <h5 class="card-subtitle mb-4 text-danger">Simple &lambda; for squaring a number named a</h5>
+                  <p class="card-text"></p>
+                  <a href="#" onclick="editor2.getSession().setValue('import json\nc = float(a) ** 2\noutput = json.dumps([{\'output\':c}])');document.getElementById('contentDiv').innerHTML = '';addElement('a');" class="card-link">Use this!</a>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
